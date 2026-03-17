@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Candidats - BACC</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/nav :: navbar}"></div>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Gestion des Candidats</h1>
+            <a th:href="@{/candidats/create}" class="btn btn-primary">Ajouter un Candidat</a>
+        </div>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Nom</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${candidats}">
+                        <td th:text="${c.id}"></td>
+                        <td th:text="${c.nom}"></td>
+                        <td class="actions">
+                            <a th:href="@{/candidats/edit/{id}(id=${c.id})}" class="btn btn-primary btn-sm">Modifier</a>
+                            <a th:href="@{/candidats/delete/{id}(id=${c.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer ?')">Supprimer</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
