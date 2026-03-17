@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Matières - BACC</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/nav :: navbar}"></div>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Gestion des Matières</h1>
+            <a th:href="@{/matieres/create}" class="btn btn-primary">Ajouter une Matière</a>
+        </div>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="m : ${matieres}">
+                        <td th:text="${m.id}">1</td>
+                        <td th:text="${m.nom}">Mathématiques</td>
+                        <td class="actions">
+                            <a th:href="@{/matieres/edit/{id}(id=${m.id})}" class="btn btn-primary btn-sm">Modifier</a>
+                            <a th:href="@{/matieres/delete/{id}(id=${m.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer ?')">Supprimer</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Résultats Finaux - BACC</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/nav :: navbar}"></div>
+
+    <div class="container">
+        <h1>Notes Finales des Candidats</h1>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Candidat</th>
+                        <th>Matière</th>
+                        <th>Note Finale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="res : ${resultats}">
+                        <td th:text="${res.candidat.nom}">Candidat</td>
+                        <td th:text="${res.matiere.nom}">Matière</td>
+                        <td th:text="${res.noteFinal}" style="font-weight: bold; color: var(--accent);">0.0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
