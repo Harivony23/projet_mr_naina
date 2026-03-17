@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Notes - BACC</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/nav :: navbar}"></div>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Saisie des Notes</h1>
+            <a th:href="@{/notes/create}" class="btn btn-primary">Saisir une Note</a>
+        </div>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Candidat</th>
+                        <th>Matière</th>
+                        <th>Correcteur</th>
+                        <th>Note</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="n : ${notes}">
+                        <td th:text="${n.candidat.nom}">Candidat</td>
+                        <td th:text="${n.matiere.nom}">Matière</td>
+                        <td th:text="${n.correcteur.nom}">Correcteur</td>
+                        <td th:text="${n.note}">0.0</td>
+                        <td class="actions">
+                            <a th:href="@{/notes/edit/{id}(id=${n.id})}" class="btn btn-primary btn-sm">Modifier</a>
+                            <a th:href="@{/notes/delete/{id}(id=${n.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer ?')">Supprimer</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

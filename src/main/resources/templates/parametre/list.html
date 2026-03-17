@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Paramètres - BACC</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/nav :: navbar}"></div>
+
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Paramètres de Correction</h1>
+            <a th:href="@{/parametres/create}" class="btn btn-primary">Ajouter un Paramètre</a>
+        </div>
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Matière</th>
+                        <th>Seuil Diff.</th>
+                        <th>Opérateur</th>
+                        <th>Résolution</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${parametres}">
+                        <td th:text="${p.matiere.nom}">Matière</td>
+                        <td th:text="${p.diff}">10.0</td>
+                        <td th:text="${p.operateur.symbole}">></td>
+                        <td th:text="${p.resolution.nom}">Grande</td>
+                        <td class="actions">
+                            <a th:href="@{/parametres/edit/{id}(id=${p.id})}" class="btn btn-primary btn-sm">Modifier</a>
+                            <a th:href="@{/parametres/delete/{id}(id=${p.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer ?')">Supprimer</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

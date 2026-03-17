@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Correcteur - Formulaire</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/nav :: navbar}"></div>
+    <div class="container" style="max-width: 600px;">
+        <h1 th:text="${correcteur.id == null ? 'Nouveau Correcteur' : 'Modifier le Correcteur'}"></h1>
+        <div class="card">
+            <form th:action="@{/correcteurs/save}" th:object="${correcteur}" method="post">
+                <input type="hidden" th:field="*{id}" />
+                <div class="form-group">
+                    <label>Nom du Correcteur</label>
+                    <input type="text" th:field="*{nom}" required />
+                </div>
+                <div style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <a th:href="@{/correcteurs}" class="btn">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

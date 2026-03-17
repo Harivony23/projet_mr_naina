@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Note - Formulaire</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/nav :: navbar}"></div>
+
+    <div class="container" style="max-width: 600px;">
+        <h1 th:text="${note.id == null ? 'Nouvelle Note' : 'Modifier la Note'}">Note</h1>
+        <div class="card">
+            <form th:action="@{/notes/save}" th:object="${note}" method="post">
+                <input type="hidden" th:field="*{id}" />
+                <div class="form-group">
+                    <label>Candidat</label>
+                    <select th:field="*{candidat.id}" required>
+                        <option th:each="c : ${candidats}" th:value="${c.id}" th:text="${c.nom}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Matière</label>
+                    <select th:field="*{matiere.id}" required>
+                        <option th:each="m : ${matieres}" th:value="${m.id}" th:text="${m.nom}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Correcteur</label>
+                    <select th:field="*{correcteur.id}" required>
+                        <option th:each="corr : ${correcteurs}" th:value="${corr.id}" th:text="${corr.nom}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Note</label>
+                    <input type="number" step="0.01" th:field="*{note}" required />
+                </div>
+                <div style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    <a th:href="@{/notes}" class="btn">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

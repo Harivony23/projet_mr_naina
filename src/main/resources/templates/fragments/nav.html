@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<nav th:fragment="navbar">
+    <div>
+        <a th:href="@{/resultats}" style="font-size: 1.5rem; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">BACC Correction</a>
+    </div>
+    <div>
+        <a th:href="@{/matieres}">Matières</a>
+        <a th:href="@{/candidats}">Candidats</a>
+        <a th:href="@{/correcteurs}">Correcteurs</a>
+        <a th:href="@{/notes}">Notes</a>
+        <a th:href="@{/parametres}">Paramètres</a>
+        <a th:href="@{/resultats}" class="btn btn-primary">Résultats</a>
+    </div>
+</nav>
+</html>
