@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html(title='Suivi Projet Forage', content=~{::div})}">
+<body>
+    <div class="card">
+        <h1>Suivi de la Demande #<span th:text="${demande.idDemande}"></span></h1>
+        <div style="grid-template-columns: 1fr 1fr; display: grid; gap: 2rem;">
+            <div>
+                <h2>Informations Client</h2>
+                <p><strong>Nom:</strong> <span th:text="${demande.client.nom}">Nom</span></p>
+                <p><strong>Lieu:</strong> <span th:text="${demande.lieu}">Lieu</span></p>
+                <p><strong>District:</strong> <span th:text="${demande.district}">District</span></p>
+            </div>
+        </div>
+
+        <hr style="margin: 2rem 0; border: 0; border-top: 1px solid var(--border);">
+
+        <a href="/demandes" style="display: block; margin-top: 2rem; color: var(--secondary);">← Retour à la liste</a>
+    </div>
+</body>
+</html>
