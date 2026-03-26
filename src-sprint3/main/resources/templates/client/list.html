@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html(title='Liste des Clients', content=~{::div})}">
+<body>
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>Nos Clients</h1>
+            <a href="/clients/creer" class="btn btn-primary">Nouveau Client</a>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Contact</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="c : ${clients}">
+                    <td th:text="${c.idClient}">1</td>
+                    <td th:text="${c.nom}">Nom</td>
+                    <td th:text="${c.contact}">Contact</td>
+                    <td>
+                        <a href="/demandes/creer" class="btn btn-secondary">Créer Demande</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
