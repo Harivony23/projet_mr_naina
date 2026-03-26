@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html(title='Nouveau Client', content=~{::div})}">
+<body>
+    <div class="card">
+        <h1>Ajouter un nouveau client</h1>
+        <form th:action="@{/clients/creer}" method="POST" th:object="${client}">
+            <div class="form-group">
+                <label>Nom du Client</label>
+                <input type="text" th:field="*{nom}" placeholder="Nom complet" required />
+            </div>
+            <div class="form-group">
+                <label>Contact (Téléphone / Email)</label>
+                <input type="text" th:field="*{contact}" placeholder="034..." />
+            </div>
+            <button type="submit" class="btn btn-primary">Enregistrer le Client</button>
+        </form>
+    </div>
+</body>
+</html>

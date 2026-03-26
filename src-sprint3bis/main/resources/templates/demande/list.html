@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html(title='Liste des Demandes', content=~{::div})}">
+<body>
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h1>Demandes de Forage</h1>
+            <a href="/demandes/creer" class="btn btn-primary">Nouvelle Demande</a>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Client</th>
+                    <th>Lieu</th>
+                    <th>Statut</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="d : ${demandes}">
+                    <td th:text="${d.dateDemande}">2024-01-01</td>
+                    <td th:text="${d.client != null ? d.client.nom : 'Inconnu'}">Client Nom</td>
+                    <td th:text="${d.lieu}">Lieu</td>
+                    <td>
+                        <span class="badge badge-info" th:text="${d.statut.libelle}">EN ATTENTE</span>
+                    </td>
+                        <td>
+                            <a th:href="@{/demandes/{id}(id=${d.idDemande})}" class="btn btn-secondary">Détails</a>
+                        </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
