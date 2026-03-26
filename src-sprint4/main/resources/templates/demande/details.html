@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html(title='Suivi Projet Forage', content=~{::div})}">
+<body>
+    <div class="card">
+        <h1>Suivi de la Demande #<span th:text="${demande.idDemande}">1</span></h1>
+        <div style="grid-template-columns: 1fr 1fr; display: grid; gap: 2rem;">
+            <div>
+                <h2>Informations Client</h2>
+                <p><strong>Nom:</strong> <span th:text="${demande.client.nom}">Nom</span></p>
+                <p><strong>Lieu:</strong> <span th:text="${demande.lieu}">Lieu</span></p>
+                <p><strong>District:</strong> <span th:text="${demande.district}">District</span></p>
+            </div>
+            <div>
+                <h2>Statut du Projet</h2>
+                <span class="badge badge-success" th:text="${demande.statut.libelle}">Statut</span>
+                <p>Date demande: <span th:text="${demande.dateDemande}">Date</span></p>
+                
+                <!-- RECAPITULATIF FINANCIER DYNAMIQUE -->
+                <div class="card" style="background: #eff6ff; border: 1px solid #bfdbfe; margin-top: 1rem; padding: 1rem;">
+                    <h3 style="color: #1e40af; font-size: 1rem; margin-bottom: 0.25rem;">Montant Total Global</h3>
+                    <p style="font-size: 1.5rem; font-weight: 700; color: #1e3a8a; margin: 0;">
+                        <span id="total-global-display" 
+                              th:data-fixed-total="${#aggregates.sum(devisList.?[statut.code == 'accepte' || statut.code == 'devis_en_attente'].![montantTotal]) ?: 0}"
+                              th:text="${#numbers.formatDecimal(#aggregates.sum(devisList.?[statut.code == 'accepte' || statut.code == 'devis_en_attente'].![montantTotal]) ?: 0, 0, 'WHITESPACE', 0, 'POINT')}">0</span> Ar
+                    </p>
+                    <small style="color: #64748b;">(Somme des devis validés/envoyés + saisi)</small>
+                </div>
+            </div>
+        </div>
+
+        <hr style="margin: 2rem 0; border: 0; border-top: 1px solid var(--border);">
+
+        <!-- ===== WORKFLOW STEPS ===== -->
+
+        <!-- 1. DEVIS ETUDE -->
+        <div th:if="${demande.statut.code == 'en_attente'}" class="workflow-step">
+            <h2>Étape 1: Création du Devis d'Étude</h2>
+            <form th:action="@{/demandes/{id}/devis(id=${demande.idDemande})}" method="POST">
+                <input type="hidden" name="type" value="etude" />
+                <div class="form-group">
+                    <label>Libellé prestation</label>
+                    <input type="text" name="libelle" value="Étude de faisabilité hydraulique" required />
+                </div>
+                <div class="form-group">
+                    <label>Montant total (Ar)</label>
+                    <input type="number" name="montant" value="500000" id="input-montant-etude" required />
+                </div>
+                <button type="submit" class="btn btn-primary">Envoyer le Devis au Client</button>
+            </form>
+        </div>
+
+        <!-- 2. ACCEPTATION ETUDE -->
+        <div th:if="${demande.statut.code == 'devis_etude_envoye'}" class="workflow-step">
+            <h2>Étape 2: Réponse du Client au Devis d'Étude</h2>
+            <div th:each="devis : ${devisList}" th:if="${devis.typeDevis.libelle == 'etude' && devis.statut.code == 'devis_en_attente'}">
+                <p>Montant: <strong th:text="${devis.montantTotal}">0</strong> Ar</p>
+                <div style="margin-top: 1rem;">
+                    <form th:action="@{/demandes/devis/{id}/accepter(id=${devis.idDevis})}" method="POST" style="display:inline;">
+                        <input type="hidden" name="demandeId" th:value="${demande.idDemande}" />
+                        <button type="submit" class="btn btn-primary">Accepter le Devis</button>
+                    </form>
+                    <form th:action="@{/demandes/devis/{id}/refuser(id=${devis.idDevis})}" method="POST" style="display:inline;">
+                        <input type="hidden" name="demandeId" th:value="${demande.idDemande}" />
+                        <button type="submit" class="btn btn-secondary">Refuser le Devis</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. RESULTAT ETUDE -->
+        <div th:if="${demande.statut.code == 'etude_en_cours'}" class="workflow-step">
+            <h2>Étape 3: Résultats de l'Étude de faisabilité</h2>
+            <form th:action="@{/demandes/{id}/etude(id=${demande.idDemande})}" method="POST">
+                <input type="hidden" name="devisId" th:each="d : ${devisList}" th:if="${d.typeDevis.libelle == 'etude' && d.statut.code == 'accepte'}" th:value="${d.idDevis}" />
+                <div class="form-group">
+                    <label>Résultat</label>
+                    <select name="resultat">
+                        <option value="faisable">Faisable</option>
+                        <option value="non_faisable">Non Faisable</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Commentaire</label>
+                    <textarea name="commentaire" placeholder="Observation sur le terrain..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Finaliser l'Étude</button>
+            </form>
+        </div>
+
+        <!-- 4. DEVIS FORAGE -->
+        <div th:if="${demande.statut.code == 'etude_faisable'}" class="workflow-step">
+            <h2>Étape 4: Devis de Réalisation (Forage)</h2>
+            <form th:action="@{/demandes/{id}/devis(id=${demande.idDemande})}" method="POST">
+                <input type="hidden" name="type" value="forage" />
+                <div class="form-group">
+                    <label>Libellé réalisation</label>
+                    <input type="text" name="libelle" value="Installation château d'eau et forage 40m" required />
+                </div>
+                <div class="form-group">
+                    <label>Montant total (Ar)</label>
+                    <input type="number" name="montant" value="15000000" id="input-montant-forage" required />
+                </div>
+                <button type="submit" class="btn btn-primary">Envoyer le Devis Forage</button>
+            </form>
+        </div>
+
+        <!-- 5. ACCEPTATION FORAGE -->
+        <div th:if="${demande.statut.code == 'devis_forage_envoye'}" class="workflow-step">
+            <h2>Étape 5: Réponse au Devis de Forage</h2>
+            <div th:each="devis : ${devisList}" th:if="${devis.typeDevis.libelle == 'forage' && devis.statut.code == 'devis_en_attente'}">
+                <p>Montant realization: <strong th:text="${devis.montantTotal}">0</strong> Ar</p>
+                <div style="margin-top: 1rem;">
+                    <form th:action="@{/demandes/devis/{id}/accepter(id=${devis.idDevis})}" method="POST" style="display:inline;">
+                        <input type="hidden" name="demandeId" th:value="${demande.idDemande}" />
+                        <button type="submit" class="btn btn-primary">Acceptation Project</button>
+                    </form>
+                    <button class="btn btn-secondary">Refus Définitif</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. REALISATION -->
+        <div th:if="${demande.statut.code == 'travaux_en_cours' || (demande.statut.code == 'termine' && travaux != null)}" class="workflow-step">
+            <h2>Étape 6: Réalisation (Forage en cours)</h2>
+            <div th:if="${travaux == null}">
+                <form th:action="@{/demandes/{id}/travaux/demarrer(id=${demande.idDemande})}" method="POST">
+                    <input type="hidden" name="devisId" th:each="d : ${devisList}" th:if="${d.typeDevis.libelle == 'forage' && d.statut.code == 'accepte'}" th:value="${d.idDevis}" />
+                    <button type="submit" class="btn btn-accent">Démarrer le chantier aujourd'hui</button>
+                </form>
+            </div>
+            <div th:if="${travaux != null}">
+                <p>Début des travaux: <span th:text="${travaux.dateDebut}">date</span></p>
+                <div th:if="${travaux.dateArriveeEau == null}">
+                    <form th:action="@{/demandes/travaux/{id}/eau(id=${travaux.idTravaux})}" method="POST">
+                        <input type="hidden" name="demandeId" th:value="${demande.idDemande}" />
+                        <button type="submit" class="btn btn-accent">Eau atteinte aujourd'hui !</button>
+                    </form>
+                </div>
+                <div th:if="${travaux.dateArriveeEau != null}">
+                    <p style="color: blue; font-weight: bold; margin: 1rem 0;">✓ Eau atteinte le <span th:text="${travaux.dateArriveeEau}">date</span></p>
+                    <div th:if="${travaux.dateFin == null}">
+                        <form th:action="@{/demandes/travaux/{id}/terminer(id=${travaux.idTravaux})}" method="POST">
+                            <input type="hidden" name="demandeId" th:value="${demande.idDemande}" />
+                            <button type="submit" class="btn btn-success">Clôturer le Chantier</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. TESTS SANITAIRES -->
+        <div th:if="${travaux != null && travaux.dateFin != null}" class="workflow-step">
+            <h2>Étape 7: Tests Sanitaires</h2>
+            <div th:if="${tests.isEmpty()}">
+                <p>Aucun test effectué.</p>
+            </div>
+            <table>
+                <tr th:each="t : ${tests}">
+                    <td th:text="${t.dateTest}">Date</td>
+                    <td th:text="${t.resultat}">Resultat</td>
+                    <td th:text="${t.commentaire}">Commentaire</td>
+                </tr>
+            </table>
+
+            <form th:action="@{/demandes/travaux/{id}/test(id=${travaux.idTravaux})}" method="POST" style="margin-top: 1.5rem;">
+                <input type="hidden" name="demandeId" th:value="${demande.idDemande}" />
+                <div class="form-group">
+                    <label>Résultat Test</label>
+                    <select name="resultat">
+                        <option value="conforme">Conforme</option>
+                        <option value="non_conforme">Non Conforme</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Observation</label>
+                    <input type="text" name="commentaire" placeholder="Propriétés de l'eau..." />
+                </div>
+                <button type="submit" class="btn btn-primary">Enregistrer un Test</button>
+            </form>
+        </div>
+
+        <div th:if="${demande.statut.code == 'termine'}" style="margin-top: 2rem; text-align: center; background: #f0fdf4; padding: 2rem; border-radius: 12px; border: 2px dashed #166534;">
+            <p style="font-size: 1.5rem; color: #166534;">✓ Projet Terminé avec Succès</p>
+            <p>Toutes les étapes ont été validées.</p>
+        </div>
+
+        <a href="/demandes" style="display: block; margin-top: 2rem; color: var(--secondary);">← Retour à la liste</a>
+    </div>
+
+    <!-- SCRIPT POUR CALCUL DYNAMIQUE -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const montantInputs = document.querySelectorAll('input[name="montant"]');
+            const totalDisplay = document.getElementById('total-global-display');
+            
+            // On récupère le montant déjà validé (via data attribute injecté par Thymeleaf)
+            const fixedTotal = parseFloat(totalDisplay.getAttribute('data-fixed-total')) || 0;
+
+            function formatNumber(num) {
+                return new Intl.NumberFormat('fr-FR').format(num);
+            }
+
+            function updateTotal() {
+                let currentInputTotal = 0;
+                montantInputs.forEach(input => {
+                    // On ne compte que les inputs visibles dans le DOM
+                    if (input.offsetParent !== null) {
+                        currentInputTotal += parseFloat(input.value) || 0;
+                    }
+                });
+                
+                const finalTotal = fixedTotal + currentInputTotal;
+                totalDisplay.textContent = formatNumber(finalTotal);
+            }
+
+            // Écouter les changements sur tous les champs "montant"
+            montantInputs.forEach(input => {
+                input.addEventListener('input', updateTotal);
+            });
+
+            // Initialisation au chargement
+            updateTotal();
+        });
+    </script>
+</body>
+</html>

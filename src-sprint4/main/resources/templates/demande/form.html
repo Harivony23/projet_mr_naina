@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/main :: html(title='Créer une Demande', content=~{::div})}">
+<body>
+    <div class="card">
+        <h1>Exprimer un besoin (Demande de Client)</h1>
+        <form th:action="@{/demandes/creer}" method="POST" th:object="${demande}">
+            <div class="form-group">
+                <label>Client</label>
+                <select th:field="*{client.idClient}" required>
+                    <option th:each="c : ${clients}" th:value="${c.idClient}" th:text="${c.nom}"></option>
+                </select>
+                <a href="/clients/creer" style="font-size: 0.8rem; color: var(--accent); margin-top: 0.5rem; display: inline-block;">+ Nouveau Client</a>
+            </div>
+            <div class="form-group">
+                <label>Lieu</label>
+                <input type="text" th:field="*{lieu}" placeholder="Adresse précise" required />
+            </div>
+            <div class="form-group">
+                <label>District</label>
+                <input type="text" th:field="*{district}" placeholder="District" />
+            </div>
+            <button type="submit" class="btn btn-primary">Enregistrer la Demande</button>
+        </form>
+    </div>
+</body>
+</html>
